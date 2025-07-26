@@ -32,10 +32,12 @@ def create_app(config_name='default'):
     from app.routes.auth import auth_bp
     from app.routes.users import users_bp
     from app.routes.roles import roles_bp
+    from app.routes.projects import projects_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(roles_bp, url_prefix='/api/roles')
+    app.register_blueprint(projects_bp, url_prefix='/api/projects')
     
     # 创建数据库表
     with app.app_context():
