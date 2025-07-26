@@ -34,12 +34,16 @@ def create_app(config_name='default'):
     from app.routes.roles import roles_bp
     from app.routes.projects import projects_bp
     from app.routes.time_records import time_records_bp
+    from app.routes.reports import reports_bp
+    from app.routes.costs import costs_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(roles_bp, url_prefix='/api/roles')
     app.register_blueprint(projects_bp, url_prefix='/api/projects')
     app.register_blueprint(time_records_bp, url_prefix='/api/time-records')
+    app.register_blueprint(reports_bp, url_prefix='/api/reports')
+    app.register_blueprint(costs_bp, url_prefix='/api/costs')
     
     # 创建数据库表
     with app.app_context():
