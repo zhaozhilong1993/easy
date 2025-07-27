@@ -84,4 +84,13 @@ yarn-error.log*
 
 # Build files
 build/
-dist/ 
+dist/
+
+# Next.js
+.next/
+out/
+.vercel/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts 
