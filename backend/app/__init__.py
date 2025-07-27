@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
+from flask_restx import Api
 from config.config import config
 
 # 初始化扩展
@@ -11,6 +12,21 @@ db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
 bcrypt = Bcrypt()
+api = Api(
+    title='研发成本统计系统 API',
+    version='1.0',
+    description='企业研发成本管理和统计分析平台 API 文档',
+    doc='/apidocs/',
+    authorizations={
+        'apikey': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization',
+            'description': "Type 'Bearer ' + JWT token"
+        }
+    },
+    security='apikey'
+)
 
 def create_app(config_name='default'):
     """应用工厂函数"""
@@ -27,6 +43,7 @@ def create_app(config_name='default'):
     jwt.init_app(app)
     bcrypt.init_app(app)
     CORS(app)
+    api.init_app(app)
     
     # 注册蓝图
     from app.routes.auth import auth_bp
