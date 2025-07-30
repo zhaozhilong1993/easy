@@ -45,24 +45,11 @@ export default function UsersPage() {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    // 强制检查localStorage中的token
-    const checkAndFetch = () => {
-      const localToken = localStorage.getItem('token');
-      console.log('UsersPage: checkAndFetch - localToken:', !!localToken, 'isAuthenticated:', isAuthenticated, 'token:', !!token);
-      
-      if (localToken && isAuthenticated && token) {
-        console.log('UsersPage: fetching users with token');
-        setTimeout(() => {
-          fetchUsers();
-        }, 200);
-      } else {
-        console.log('UsersPage: not authenticated or no token, retrying in 1000ms');
-        setTimeout(checkAndFetch, 1000);
-      }
-    };
-    
-    checkAndFetch();
-  }, []); // 移除依赖，只在组件挂载时执行一次
+    if (isAuthenticated) {
+      console.log('UsersPage: fetching users');
+      fetchUsers();
+    }
+  }, [isAuthenticated]);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -100,11 +87,18 @@ export default function UsersPage() {
 
   const handleSubmit = async (values: any) => {
     try {
+      // 移除确认密码字段
+      const { confirmPassword, ...submitData } = values;
+      
       if (editingUser) {
-        await userAPI.updateUser(editingUser.id, values);
+        // 编辑时，如果没有输入密码则移除密码字段
+        if (!submitData.password) {
+          delete submitData.password;
+        }
+        await userAPI.updateUser(editingUser.id, submitData);
         message.success('更新成功');
       } else {
-        await userAPI.createUser(values);
+        await userAPI.createUser(submitData);
         message.success('创建成功');
       }
       setModalVisible(false);
@@ -250,6 +244,18 @@ export default function UsersPage() {
               </Col>
               <Col span={12}>
                 <Form.Item
+                  name="employee_id"
+                  label="工号"
+                  rules={[{ required: true, message: '请输入工号' }]}
+                >
+                  <Input placeholder="请输入工号" />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
                   name="name"
                   label="姓名"
                   rules={[{ required: true, message: '请输入姓名' }]}
@@ -257,9 +263,6 @@ export default function UsersPage() {
                   <Input />
                 </Form.Item>
               </Col>
-            </Row>
-
-            <Row gutter={16}>
               <Col span={12}>
                 <Form.Item
                   name="email"
@@ -272,6 +275,9 @@ export default function UsersPage() {
                   <Input />
                 </Form.Item>
               </Col>
+            </Row>
+
+            <Row gutter={16}>
               <Col span={12}>
                 <Form.Item
                   name="department"
@@ -286,9 +292,6 @@ export default function UsersPage() {
                   </Select>
                 </Form.Item>
               </Col>
-            </Row>
-
-            <Row gutter={16}>
               <Col span={12}>
                 <Form.Item
                   name="role"
@@ -303,12 +306,59 @@ export default function UsersPage() {
                   </Select>
                 </Form.Item>
               </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col span={12}>
+                <Form.Item
+                  name="password"
+                  label="密码"
+                  rules={[
+                    { required: !editingUser, message: '请输入密码' },
+                    { min: 6, message: '密码至少6位' }
+                  ]}
+                >
+                  <Input.Password placeholder={editingUser ? '留空则不修改' : '请输入密码'} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="confirmPassword"
+                  label="确认密码"
+                  dependencies={['password']}
+                  rules={[
+                    { required: !editingUser, message: '请确认密码' },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue('password') === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(new Error('两次输入的密码不一致'));
+                      },
+                    }),
+                  ]}
+                >
+                  <Input.Password placeholder={editingUser ? '留空则不修改' : '请确认密码'} />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
               <Col span={12}>
                 <Form.Item
                   name="hourly_rate"
                   label="时薪"
                 >
                   <Input type="number" placeholder="请输入时薪" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="is_active"
+                  label="状态"
+                  valuePropName="checked"
+                >
+                  <Switch checkedChildren="启用" unCheckedChildren="禁用" />
                 </Form.Item>
               </Col>
             </Row>

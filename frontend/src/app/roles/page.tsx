@@ -93,7 +93,9 @@ export default function RolesPage() {
       const response = await roleAPI.getPermissions();
       console.log('RolesPage: fetchPermissions response:', response.data);
       // 后端返回格式是 {permissions: [...]}，需要提取permissions数组
-      setPermissions(response.data.permissions || []);
+      const permissionsData = response.data.permissions || [];
+      console.log('RolesPage: setting permissions:', permissionsData.length, 'permissions');
+      setPermissions(permissionsData);
     } catch (error) {
       console.error('RolesPage: fetchPermissions error:', error);
       message.error('获取权限列表失败');
@@ -308,6 +310,7 @@ export default function RolesPage() {
                 placeholder="请选择权限"
                 optionFilterProp="children"
               >
+                {console.log('RolesPage: rendering permissions:', permissions.length)}
                 {(permissions || []).map(permission => (
                   <Option key={permission.id} value={permission.name}>
                     <div className="flex items-center">

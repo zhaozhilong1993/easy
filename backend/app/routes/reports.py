@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from datetime import datetime, date, timedelta
 from app import db
 from app.models import DailyReport, WeeklyReport, User, TimeRecord
-from app.middlewares.auth import login_required, role_required
+from app.middlewares.auth import login_required, role_required, permission_required, get_current_user
 
 reports_bp = Blueprint('reports', __name__)
 
@@ -10,7 +10,7 @@ reports_bp = Blueprint('reports', __name__)
 
 @reports_bp.route('/daily', methods=['GET'])
 @login_required
-@role_required('report_read')
+@permission_required('report_read')
 def get_daily_reports():
     """获取日报列表"""
     page = request.args.get('page', 1, type=int)
@@ -61,7 +61,7 @@ def get_daily_reports():
 
 @reports_bp.route('/daily/<int:report_id>', methods=['GET'])
 @login_required
-@role_required('report_read')
+@permission_required('report_read')
 def get_daily_report(report_id):
     """获取日报详情"""
     report = DailyReport.query.get(report_id)
@@ -75,10 +75,10 @@ def get_daily_report(report_id):
 
 @reports_bp.route('/daily', methods=['POST'])
 @login_required
-@role_required('report_create')
+@permission_required('report_create')
 def create_daily_report():
     """创建日报"""
-    current_user = request.current_user
+    current_user = get_current_user()
     data = request.get_json()
     
     # 验证必填字段
@@ -138,10 +138,10 @@ def create_daily_report():
 
 @reports_bp.route('/daily/<int:report_id>', methods=['PUT'])
 @login_required
-@role_required('report_update')
+@permission_required('report_update')
 def update_daily_report(report_id):
     """更新日报"""
-    current_user = request.current_user
+    current_user = get_current_user()
     report = DailyReport.query.get(report_id)
     
     if not report:
@@ -175,10 +175,10 @@ def update_daily_report(report_id):
 
 @reports_bp.route('/daily/<int:report_id>/approve', methods=['POST'])
 @login_required
-@role_required('report_approve')
+@permission_required('report_approve')
 def approve_daily_report(report_id):
     """审核日报"""
-    current_user = request.current_user
+    current_user = get_current_user()
     report = DailyReport.query.get(report_id)
     
     if not report:
@@ -207,7 +207,7 @@ def approve_daily_report(report_id):
 
 @reports_bp.route('/weekly', methods=['GET'])
 @login_required
-@role_required('report_read')
+@permission_required('report_read')
 def get_weekly_reports():
     """获取周报列表"""
     page = request.args.get('page', 1, type=int)
@@ -258,7 +258,7 @@ def get_weekly_reports():
 
 @reports_bp.route('/weekly/<int:report_id>', methods=['GET'])
 @login_required
-@role_required('report_read')
+@permission_required('report_read')
 def get_weekly_report(report_id):
     """获取周报详情"""
     report = WeeklyReport.query.get(report_id)
@@ -272,10 +272,10 @@ def get_weekly_report(report_id):
 
 @reports_bp.route('/weekly', methods=['POST'])
 @login_required
-@role_required('report_create')
+@permission_required('report_create')
 def create_weekly_report():
     """创建周报"""
-    current_user = request.current_user
+    current_user = get_current_user()
     data = request.get_json()
     
     # 验证必填字段
@@ -350,10 +350,10 @@ def create_weekly_report():
 
 @reports_bp.route('/weekly/<int:report_id>', methods=['PUT'])
 @login_required
-@role_required('report_update')
+@permission_required('report_update')
 def update_weekly_report(report_id):
     """更新周报"""
-    current_user = request.current_user
+    current_user = get_current_user()
     report = WeeklyReport.query.get(report_id)
     
     if not report:
@@ -387,10 +387,10 @@ def update_weekly_report(report_id):
 
 @reports_bp.route('/weekly/<int:report_id>/approve', methods=['POST'])
 @login_required
-@role_required('report_approve')
+@permission_required('report_approve')
 def approve_weekly_report(report_id):
     """审核周报"""
-    current_user = request.current_user
+    current_user = get_current_user()
     report = WeeklyReport.query.get(report_id)
     
     if not report:
@@ -419,7 +419,7 @@ def approve_weekly_report(report_id):
 
 @reports_bp.route('/statistics', methods=['GET'])
 @login_required
-@role_required('report_read')
+@permission_required('report_read')
 def get_report_statistics():
     """获取报告统计"""
     user_id = request.args.get('user_id', type=int)

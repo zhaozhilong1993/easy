@@ -54,8 +54,8 @@ def create_user():
         return jsonify({'message': '工号已存在'}), 400
     
     # 创建新用户
-    from app import bcrypt
-    password_hash = bcrypt.generate_password_hash(data['password']).decode('utf-8')
+    from werkzeug.security import generate_password_hash
+    password_hash = generate_password_hash(data['password'])
     
     user = User(
         username=data['username'],

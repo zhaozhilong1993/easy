@@ -11,7 +11,9 @@ def create_app():
     
     # 配置
     app.config['SECRET_KEY'] = 'your-secret-key-here'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///rd_cost_system.db'
+    import os
+    db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'instance', 'rd_cost_system.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     # 初始化扩展
