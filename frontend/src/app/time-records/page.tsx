@@ -89,26 +89,13 @@ export default function TimeRecordsPage() {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    // 强制检查localStorage中的token
-    const checkAndFetch = () => {
-      const localToken = localStorage.getItem('token');
-      console.log('TimeRecordsPage: checkAndFetch - localToken:', !!localToken, 'isAuthenticated:', isAuthenticated, 'token:', !!token);
-      
-      if (localToken && isAuthenticated && token) {
-        console.log('TimeRecordsPage: fetching time records with token');
-        setTimeout(() => {
-          fetchTimeRecords();
-          fetchWorkTypes();
-          fetchUsers();
-        }, 200);
-      } else {
-        console.log('TimeRecordsPage: not authenticated or no token, retrying in 1000ms');
-        setTimeout(checkAndFetch, 1000);
-      }
-    };
-    
-    checkAndFetch();
-  }, []); // 移除依赖，只在组件挂载时执行一次
+    if (isAuthenticated) {
+      console.log('TimeRecordsPage: fetching time records, work types and users');
+      fetchTimeRecords();
+      fetchWorkTypes();
+      fetchUsers();
+    }
+  }, [isAuthenticated]);
 
   const fetchTimeRecords = async () => {
     try {

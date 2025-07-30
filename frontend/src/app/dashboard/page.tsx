@@ -37,24 +37,11 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 强制检查localStorage中的token
-    const checkAndFetch = () => {
-      const localToken = localStorage.getItem('token');
-      console.log('DashboardPage: checkAndFetch - localToken:', !!localToken, 'isAuthenticated:', isAuthenticated, 'token:', !!token);
-      
-      if (localToken && isAuthenticated && token) {
-        console.log('DashboardPage: fetching dashboard data with token');
-        setTimeout(() => {
-          fetchDashboardData();
-        }, 200);
-      } else {
-        console.log('DashboardPage: not authenticated or no token, retrying in 1000ms');
-        setTimeout(checkAndFetch, 1000);
-      }
-    };
-    
-    checkAndFetch();
-  }, []); // 移除依赖，只在组件挂载时执行一次
+    if (isAuthenticated) {
+      console.log('DashboardPage: fetching dashboard data');
+      fetchDashboardData();
+    }
+  }, [isAuthenticated]);
 
   const fetchDashboardData = async () => {
     try {

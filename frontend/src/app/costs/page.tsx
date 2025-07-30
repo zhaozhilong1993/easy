@@ -114,27 +114,14 @@ export default function CostsPage() {
   const [reportForm] = Form.useForm();
 
   useEffect(() => {
-    // 强制检查localStorage中的token
-    const checkAndFetch = () => {
-      const localToken = localStorage.getItem('token');
-      console.log('CostsPage: checkAndFetch - localToken:', !!localToken, 'isAuthenticated:', isAuthenticated, 'token:', !!token);
-      
-      if (localToken && isAuthenticated && token) {
-        console.log('CostsPage: fetching costs with token');
-        setTimeout(() => {
-          fetchPersonalCalculations();
-          fetchProjects();
-          fetchUsers();
-          fetchStatistics();
-        }, 200);
-      } else {
-        console.log('CostsPage: not authenticated or no token, retrying in 1000ms');
-        setTimeout(checkAndFetch, 1000);
-      }
-    };
-    
-    checkAndFetch();
-  }, []); // 移除依赖，只在组件挂载时执行一次
+    if (isAuthenticated) {
+      console.log('CostsPage: fetching personal calculations, projects, users and statistics');
+      fetchPersonalCalculations();
+      fetchProjects();
+      fetchUsers();
+      fetchStatistics();
+    }
+  }, [isAuthenticated]);
 
   const fetchPersonalCalculations = async () => {
     try {

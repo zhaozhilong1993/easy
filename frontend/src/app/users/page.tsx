@@ -18,7 +18,7 @@ import {
   Tag
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { userAPI } from '@/services/api';
+import { userAPI, roleAPI } from '@/services/api';
 import { useAuthStore } from '@/stores/auth';
 import MainLayout from '@/components/Layout/MainLayout';
 
@@ -30,7 +30,11 @@ interface User {
   name: string;
   email: string;
   department: string;
-  role: string;
+  roles: Array<{
+    id: number;
+    name: string;
+    description: string;
+  }>;
   hourly_rate?: number;
   is_active: boolean;
   created_at: string;
@@ -39,6 +43,7 @@ interface User {
 export default function UsersPage() {
   const { isAuthenticated, token } = useAuthStore();
   const [users, setUsers] = useState<User[]>([]);
+  const [roles, setRoles] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
@@ -46,8 +51,9 @@ export default function UsersPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('UsersPage: fetching users');
+      console.log('UsersPage: fetching users and roles');
       fetchUsers();
+      fetchRoles();
     }
   }, [isAuthenticated]);
 
@@ -63,6 +69,15 @@ export default function UsersPage() {
     }
   };
 
+  const fetchRoles = async () => {
+    try {
+      const response = await roleAPI.getRoles();
+      setRoles(response.data.roles || []);
+    } catch (error) {
+      message.error('获取角色列表失败');
+    }
+  };
+
   const handleCreate = () => {
     setEditingUser(null);
     form.resetFields();
@@ -71,7 +86,12 @@ export default function UsersPage() {
 
   const handleEdit = (user: User) => {
     setEditingUser(user);
-    form.setFieldsValue(user);
+    // 处理角色数据，从roles数组中提取角色名称
+    const formData = {
+      ...user,
+      roles: user.roles ? user.roles.map((role: any) => role.name) : []
+    };
+    form.setFieldsValue(formData);
     setModalVisible(true);
   };
 
@@ -137,12 +157,16 @@ export default function UsersPage() {
     },
     {
       title: '角色',
-      dataIndex: 'role',
-      key: 'role',
-      render: (role: string) => (
-        <Tag color={role === 'admin' ? 'red' : role === 'manager' ? 'blue' : 'green'}>
-          {role}
-        </Tag>
+      dataIndex: 'roles',
+      key: 'roles',
+      render: (roles: any[]) => (
+        <div className="flex flex-wrap gap-1">
+          {roles && roles.map((role, index) => (
+            <Tag key={index} color={role.name === 'admin' ? 'red' : role.name === 'manager' ? 'blue' : 'green'}>
+              {role.name}
+            </Tag>
+          ))}
+        </div>
       ),
     },
     {
@@ -294,15 +318,23 @@ export default function UsersPage() {
               </Col>
               <Col span={12}>
                 <Form.Item
-                  name="role"
+                  name="roles"
                   label="角色"
                   rules={[{ required: true, message: '请选择角色' }]}
                 >
-                  <Select placeholder="请选择角色">
-                    <Option value="admin">管理员</Option>
-                    <Option value="manager">项目经理</Option>
-                    <Option value="developer">开发人员</Option>
-                    <Option value="tester">测试人员</Option>
+                  <Select 
+                    mode="multiple"
+                    placeholder="请选择角色"
+                    optionFilterProp="children"
+                  >
+                    {roles.map(role => (
+                      <Option key={role.id} value={role.name}>
+                        {role.name}
+                        <span className="text-gray-400 ml-2">
+                          ({role.description})
+                        </span>
+                      </Option>
+                    ))}
                   </Select>
                 </Form.Item>
               </Col>

@@ -111,9 +111,12 @@ def update_user(user_id):
             setattr(user, field, data[field])
     
     # 更新角色
-    if data.get('roles'):
-        roles = Role.query.filter(Role.name.in_(data['roles'])).all()
-        user.roles = roles
+    if 'roles' in data:
+        if data['roles']:
+            roles = Role.query.filter(Role.name.in_(data['roles'])).all()
+            user.roles = roles
+        else:
+            user.roles = []  # 清空角色
     
     try:
         db.session.commit()

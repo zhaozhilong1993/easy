@@ -98,26 +98,13 @@ export default function ReportsPage() {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    // 强制检查localStorage中的token
-    const checkAndFetch = () => {
-      const localToken = localStorage.getItem('token');
-      console.log('ReportsPage: checkAndFetch - localToken:', !!localToken, 'isAuthenticated:', isAuthenticated, 'token:', !!token);
-      
-      if (localToken && isAuthenticated && token) {
-        console.log('ReportsPage: fetching reports with token');
-        setTimeout(() => {
-          fetchDailyReports();
-          fetchWeeklyReports();
-          fetchUsers();
-        }, 200);
-      } else {
-        console.log('ReportsPage: not authenticated or no token, retrying in 1000ms');
-        setTimeout(checkAndFetch, 1000);
-      }
-    };
-    
-    checkAndFetch();
-  }, []); // 移除依赖，只在组件挂载时执行一次
+    if (isAuthenticated) {
+      console.log('ReportsPage: fetching daily reports, weekly reports and users');
+      fetchDailyReports();
+      fetchWeeklyReports();
+      fetchUsers();
+    }
+  }, [isAuthenticated]);
 
   const fetchDailyReports = async () => {
     try {

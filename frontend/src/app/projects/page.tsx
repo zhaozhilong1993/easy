@@ -81,25 +81,12 @@ export default function ProjectsPage() {
   const [memberForm] = Form.useForm();
 
   useEffect(() => {
-    // 强制检查localStorage中的token
-    const checkAndFetch = () => {
-      const localToken = localStorage.getItem('token');
-      console.log('ProjectsPage: checkAndFetch - localToken:', !!localToken, 'isAuthenticated:', isAuthenticated, 'token:', !!token);
-      
-      if (localToken && isAuthenticated && token) {
-        console.log('ProjectsPage: fetching projects with token');
-        setTimeout(() => {
-          fetchProjects();
-          fetchUsers();
-        }, 200);
-      } else {
-        console.log('ProjectsPage: not authenticated or no token, retrying in 1000ms');
-        setTimeout(checkAndFetch, 1000);
-      }
-    };
-    
-    checkAndFetch();
-  }, []); // 移除依赖，只在组件挂载时执行一次
+    if (isAuthenticated) {
+      console.log('ProjectsPage: fetching projects and users');
+      fetchProjects();
+      fetchUsers();
+    }
+  }, [isAuthenticated]);
 
   const fetchProjects = async () => {
     try {
