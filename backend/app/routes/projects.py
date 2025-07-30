@@ -2,13 +2,12 @@ from flask import Blueprint, request, jsonify
 from datetime import datetime
 from app import db
 from app.models import Project, ProjectMember, User
-from app.middlewares.auth import jwt_required, role_required, permission_required
+from app.middlewares.auth import login_required, role_required
 
 projects_bp = Blueprint('projects', __name__)
 
 @projects_bp.route('/', methods=['GET'])
-@jwt_required
-@permission_required('project_read')
+@login_required
 def get_projects():
     """获取项目列表"""
     page = request.args.get('page', 1, type=int)
@@ -47,8 +46,7 @@ def get_projects():
     }), 200
 
 @projects_bp.route('/<int:project_id>', methods=['GET'])
-@jwt_required
-@permission_required('project_read')
+@login_required
 def get_project(project_id):
     """获取项目详情"""
     project = Project.query.get(project_id)
@@ -64,8 +62,7 @@ def get_project(project_id):
     }), 200
 
 @projects_bp.route('/', methods=['POST'])
-@jwt_required
-@permission_required('project_create')
+@login_required
 def create_project():
     """创建项目"""
     data = request.get_json()
@@ -118,8 +115,7 @@ def create_project():
         return jsonify({'message': '项目创建失败'}), 500
 
 @projects_bp.route('/<int:project_id>', methods=['PUT'])
-@jwt_required
-@permission_required('project_update')
+@login_required
 def update_project(project_id):
     """更新项目信息"""
     project = Project.query.get(project_id)
@@ -154,8 +150,7 @@ def update_project(project_id):
         return jsonify({'message': '项目更新失败'}), 500
 
 @projects_bp.route('/<int:project_id>', methods=['DELETE'])
-@jwt_required
-@permission_required('project_delete')
+@login_required
 def delete_project(project_id):
     """删除项目"""
     project = Project.query.get(project_id)
@@ -172,8 +167,7 @@ def delete_project(project_id):
         return jsonify({'message': '项目删除失败'}), 500
 
 @projects_bp.route('/<int:project_id>/members', methods=['GET'])
-@jwt_required
-@permission_required('project_read')
+@login_required
 def get_project_members(project_id):
     """获取项目成员列表"""
     project = Project.query.get(project_id)
@@ -189,8 +183,7 @@ def get_project_members(project_id):
     }), 200
 
 @projects_bp.route('/<int:project_id>/members', methods=['POST'])
-@jwt_required
-@permission_required('project_update')
+@login_required
 def add_project_member(project_id):
     """添加项目成员"""
     project = Project.query.get(project_id)
@@ -229,8 +222,7 @@ def add_project_member(project_id):
         return jsonify({'message': message}), 400
 
 @projects_bp.route('/<int:project_id>/members/<int:user_id>', methods=['DELETE'])
-@jwt_required
-@permission_required('project_update')
+@login_required
 def remove_project_member(project_id, user_id):
     """移除项目成员"""
     project = Project.query.get(project_id)
@@ -246,8 +238,7 @@ def remove_project_member(project_id, user_id):
         return jsonify({'message': message}), 400
 
 @projects_bp.route('/<int:project_id>/status', methods=['PUT'])
-@jwt_required
-@permission_required('project_update')
+@login_required
 def update_project_status(project_id):
     """更新项目状态"""
     project = Project.query.get(project_id)
@@ -275,7 +266,7 @@ def update_project_status(project_id):
         return jsonify({'message': '项目状态更新失败'}), 500
 
 @projects_bp.route('/status', methods=['GET'])
-@jwt_required
+@login_required
 def get_project_statuses():
     """获取项目状态列表"""
     statuses = ['active', 'completed', 'suspended', 'cancelled']

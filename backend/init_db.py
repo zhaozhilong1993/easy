@@ -3,29 +3,25 @@
 数据库初始化脚本
 """
 
-import sys
 import os
-
-# 添加当前目录到Python路径
+import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-try:
-    from app import create_app
-    from app.services.init_data import init_database
-    
-    print("开始初始化数据库...")
-    
-    app = create_app()
+from app import create_app, db
+from app.services.init_data import init_database
+
+app = create_app()
+
+def init_db():
+    """初始化数据库"""
     with app.app_context():
+        print("开始创建数据库表...")
+        db.create_all()
+        print("数据库表创建完成")
+        
+        print("开始初始化数据...")
         init_database()
-    
-    print("数据库初始化成功！")
-    print("默认管理员账户:")
-    print("用户名: admin")
-    print("密码: admin123")
-    
-except Exception as e:
-    print(f"数据库初始化失败: {e}")
-    import traceback
-    traceback.print_exc()
-    sys.exit(1) 
+        print("数据初始化完成")
+
+if __name__ == '__main__':
+    init_db() 

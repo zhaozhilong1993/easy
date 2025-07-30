@@ -19,6 +19,7 @@ import {
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { userAPI } from '@/services/api';
+import { useAuthStore } from '@/stores/auth';
 import MainLayout from '@/components/Layout/MainLayout';
 
 const { Option } = Select;
@@ -36,6 +37,7 @@ interface User {
 }
 
 export default function UsersPage() {
+  const { isAuthenticated, token } = useAuthStore();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -43,8 +45,24 @@ export default function UsersPage() {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    // 强制检查localStorage中的token
+    const checkAndFetch = () => {
+      const localToken = localStorage.getItem('token');
+      console.log('UsersPage: checkAndFetch - localToken:', !!localToken, 'isAuthenticated:', isAuthenticated, 'token:', !!token);
+      
+      if (localToken && isAuthenticated && token) {
+        console.log('UsersPage: fetching users with token');
+        setTimeout(() => {
+          fetchUsers();
+        }, 200);
+      } else {
+        console.log('UsersPage: not authenticated or no token, retrying in 1000ms');
+        setTimeout(checkAndFetch, 1000);
+      }
+    };
+    
+    checkAndFetch();
+  }, []); // 移除依赖，只在组件挂载时执行一次
 
   const fetchUsers = async () => {
     setLoading(true);

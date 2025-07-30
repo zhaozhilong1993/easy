@@ -1,11 +1,13 @@
 from app import db
-from app.models import Role, Permission
+from app.models import User, Role, Permission
+from werkzeug.security import generate_password_hash
 
 def init_roles_and_permissions():
-    """初始化角色和权限数据"""
+    """初始化角色和权限"""
+    print("开始初始化数据库...")
     
-    # 创建权限
-    permissions = [
+    # 定义权限
+    permissions_data = [
         # 用户管理权限
         {'name': 'user_create', 'description': '创建用户', 'resource': 'user', 'action': 'create'},
         {'name': 'user_read', 'description': '查看用户', 'resource': 'user', 'action': 'read'},
@@ -24,38 +26,44 @@ def init_roles_and_permissions():
         {'name': 'project_update', 'description': '更新项目', 'resource': 'project', 'action': 'update'},
         {'name': 'project_delete', 'description': '删除项目', 'resource': 'project', 'action': 'delete'},
         
-        # 时间记录权限
-        {'name': 'time_record_create', 'description': '创建时间记录', 'resource': 'time_record', 'action': 'create'},
-        {'name': 'time_record_read', 'description': '查看时间记录', 'resource': 'time_record', 'action': 'read'},
-        {'name': 'time_record_update', 'description': '更新时间记录', 'resource': 'time_record', 'action': 'update'},
-        {'name': 'time_record_delete', 'description': '删除时间记录', 'resource': 'time_record', 'action': 'delete'},
-        {'name': 'time_record_approve', 'description': '审核时间记录', 'resource': 'time_record', 'action': 'approve'},
+        # 工时记录权限
+        {'name': 'time_record_create', 'description': '创建工时记录', 'resource': 'time_record', 'action': 'create'},
+        {'name': 'time_record_read', 'description': '查看工时记录', 'resource': 'time_record', 'action': 'read'},
+        {'name': 'time_record_update', 'description': '更新工时记录', 'resource': 'time_record', 'action': 'update'},
+        {'name': 'time_record_delete', 'description': '删除工时记录', 'resource': 'time_record', 'action': 'delete'},
+        {'name': 'time_record_approve', 'description': '审核工时记录', 'resource': 'time_record', 'action': 'approve'},
         
-        # 日报周报权限
+        # 报告权限
         {'name': 'report_create', 'description': '创建报告', 'resource': 'report', 'action': 'create'},
         {'name': 'report_read', 'description': '查看报告', 'resource': 'report', 'action': 'read'},
         {'name': 'report_update', 'description': '更新报告', 'resource': 'report', 'action': 'update'},
         {'name': 'report_delete', 'description': '删除报告', 'resource': 'report', 'action': 'delete'},
         {'name': 'report_approve', 'description': '审核报告', 'resource': 'report', 'action': 'approve'},
         
-        # 成本计算权限
-        {'name': 'cost_calculate', 'description': '成本计算', 'resource': 'cost', 'action': 'calculate'},
+        # 成本管理权限
+        {'name': 'cost_calculate', 'description': '计算成本', 'resource': 'cost', 'action': 'calculate'},
         {'name': 'cost_read', 'description': '查看成本', 'resource': 'cost', 'action': 'read'},
+        {'name': 'cost_update', 'description': '更新成本', 'resource': 'cost', 'action': 'update'},
+        {'name': 'cost_delete', 'description': '删除成本', 'resource': 'cost', 'action': 'delete'},
         
-        # 报表权限
-        {'name': 'report_generate', 'description': '生成报表', 'resource': 'report', 'action': 'generate'},
-        {'name': 'report_export', 'description': '导出报表', 'resource': 'report', 'action': 'export'},
+        # 报告生成权限
+        {'name': 'report_generate', 'description': '生成报告', 'resource': 'report', 'action': 'generate'},
     ]
     
-    # 创建权限记录
-    for perm_data in permissions:
+    # 创建权限
+    for perm_data in permissions_data:
         permission = Permission.query.filter_by(name=perm_data['name']).first()
         if not permission:
-            permission = Permission(**perm_data)
+            permission = Permission(
+                name=perm_data['name'],
+                description=perm_data['description'],
+                resource=perm_data['resource'],
+                action=perm_data['action']
+            )
             db.session.add(permission)
     
-    # 创建角色
-    roles = [
+    # 定义角色
+    roles_data = [
         {
             'name': 'admin',
             'description': '系统管理员',
@@ -65,18 +73,18 @@ def init_roles_and_permissions():
                 'project_create', 'project_read', 'project_update', 'project_delete',
                 'time_record_create', 'time_record_read', 'time_record_update', 'time_record_delete', 'time_record_approve',
                 'report_create', 'report_read', 'report_update', 'report_delete', 'report_approve',
-                'cost_calculate', 'cost_read',
-                'report_generate', 'report_export'
+                'cost_calculate', 'cost_read', 'cost_update', 'cost_delete',
+                'report_generate'
             ]
         },
         {
-            'name': 'project_manager',
-            'description': '项目管理员',
+            'name': 'manager',
+            'description': '项目经理',
             'permissions': [
-                'project_create', 'project_read', 'project_update',
+                'project_read', 'project_update',
                 'time_record_read', 'time_record_approve',
                 'report_read', 'report_approve',
-                'cost_read',
+                'cost_read', 'cost_calculate',
                 'report_generate'
             ]
         },
@@ -84,34 +92,30 @@ def init_roles_and_permissions():
             'name': 'developer',
             'description': '研发人员',
             'permissions': [
+                'project_read',
                 'time_record_create', 'time_record_read', 'time_record_update',
                 'report_create', 'report_read', 'report_update',
                 'cost_read'
             ]
-        },
-        {
-            'name': 'finance',
-            'description': '财务管理员',
-            'permissions': [
-                'cost_calculate', 'cost_read',
-                'report_generate', 'report_export'
-            ]
         }
     ]
     
-    # 创建角色记录
-    for role_data in roles:
+    # 创建角色并分配权限
+    for role_data in roles_data:
         role = Role.query.filter_by(name=role_data['name']).first()
         if not role:
-            role = Role(name=role_data['name'], description=role_data['description'])
+            role = Role(
+                name=role_data['name'],
+                description=role_data['description']
+            )
             db.session.add(role)
             db.session.flush()  # 获取role.id
-            
-            # 分配权限
-            permissions = Permission.query.filter(
-                Permission.name.in_(role_data['permissions'])
-            ).all()
-            role.permissions = permissions
+        
+        # 分配权限
+        for perm_name in role_data['permissions']:
+            permission = Permission.query.filter_by(name=perm_name).first()
+            if permission and permission not in role.permissions:
+                role.permissions.append(permission)
     
     try:
         db.session.commit()
@@ -119,12 +123,10 @@ def init_roles_and_permissions():
     except Exception as e:
         db.session.rollback()
         print(f"角色和权限初始化失败: {e}")
+        raise
 
 def create_admin_user():
-    """创建默认管理员用户"""
-    from app.models import User
-    from app import bcrypt
-    
+    """创建管理员用户"""
     # 检查是否已存在管理员用户
     admin_user = User.query.filter_by(username='admin').first()
     if admin_user:
@@ -132,17 +134,17 @@ def create_admin_user():
         return
     
     # 创建管理员用户
-    password_hash = bcrypt.generate_password_hash('admin123').decode('utf-8')
     admin_user = User(
         username='admin',
         email='admin@example.com',
-        password_hash=password_hash,
+        password_hash=generate_password_hash('admin123'),
         name='系统管理员',
         employee_id='ADMIN001',
         department='技术部',
         position='系统管理员',
         status='active',
         hourly_rate=100.00,
+        monthly_salary=15000.00,
         cost_calculation_method='hourly'
     )
     
@@ -160,10 +162,9 @@ def create_admin_user():
     except Exception as e:
         db.session.rollback()
         print(f"管理员用户创建失败: {e}")
+        raise
 
 def init_database():
     """初始化数据库"""
-    print("开始初始化数据库...")
     init_roles_and_permissions()
-    create_admin_user()
-    print("数据库初始化完成") 
+    create_admin_user() 

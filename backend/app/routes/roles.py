@@ -1,12 +1,12 @@
 from flask import Blueprint, request, jsonify
 from app import db
 from app.models import Role, Permission
-from app.middlewares.auth import jwt_required, role_required
+from app.middlewares.auth import login_required, role_required
 
 roles_bp = Blueprint('roles', __name__)
 
 @roles_bp.route('/', methods=['GET'])
-@jwt_required
+@login_required
 @role_required('admin')
 def get_roles():
     """获取角色列表"""
@@ -17,7 +17,7 @@ def get_roles():
     }), 200
 
 @roles_bp.route('/<int:role_id>', methods=['GET'])
-@jwt_required
+@login_required
 @role_required('admin')
 def get_role(role_id):
     """获取角色详情"""
@@ -31,7 +31,7 @@ def get_role(role_id):
     }), 200
 
 @roles_bp.route('/', methods=['POST'])
-@jwt_required
+@login_required
 @role_required('admin')
 def create_role():
     """创建角色"""
@@ -68,7 +68,7 @@ def create_role():
         return jsonify({'message': '角色创建失败'}), 500
 
 @roles_bp.route('/<int:role_id>', methods=['PUT'])
-@jwt_required
+@login_required
 @role_required('admin')
 def update_role(role_id):
     """更新角色"""
@@ -107,7 +107,7 @@ def update_role(role_id):
         return jsonify({'message': '角色更新失败'}), 500
 
 @roles_bp.route('/<int:role_id>', methods=['DELETE'])
-@jwt_required
+@login_required
 @role_required('admin')
 def delete_role(role_id):
     """删除角色"""
@@ -129,7 +129,7 @@ def delete_role(role_id):
         return jsonify({'message': '角色删除失败'}), 500
 
 @roles_bp.route('/permissions', methods=['GET'])
-@jwt_required
+@login_required
 @role_required('admin')
 def get_permissions():
     """获取权限列表"""
@@ -140,7 +140,7 @@ def get_permissions():
     }), 200
 
 @roles_bp.route('/permissions', methods=['POST'])
-@jwt_required
+@login_required
 @role_required('admin')
 def create_permission():
     """创建权限"""

@@ -1,52 +1,23 @@
 from flask import Blueprint, request, jsonify
 from app import db
 from app.models import User, Role
-from app.middlewares.auth import jwt_required, role_required, permission_required
+from app.middlewares.auth import login_required, role_required
 
 users_bp = Blueprint('users', __name__)
 
 @users_bp.route('/', methods=['GET'])
-@jwt_required
+@login_required
 @role_required('admin')
 def get_users():
     """获取用户列表"""
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 10, type=int)
-    search = request.args.get('search', '')
-    status = request.args.get('status', '')
-    department = request.args.get('department', '')
-    
-    query = User.query
-    
-    if search:
-        query = query.filter(
-            User.name.contains(search) |
-            User.username.contains(search) |
-            User.employee_id.contains(search)
-        )
-    
-    if status:
-        query = query.filter(User.status == status)
-    
-    if department:
-        query = query.filter(User.department == department)
-    
-    pagination = query.paginate(
-        page=page, per_page=per_page, error_out=False
-    )
-    
-    users = [user.to_dict() for user in pagination.items]
+    users = User.query.all()
     
     return jsonify({
-        'users': users,
-        'total': pagination.total,
-        'pages': pagination.pages,
-        'current_page': page,
-        'per_page': per_page
+        'users': [user.to_dict() for user in users]
     }), 200
 
 @users_bp.route('/<int:user_id>', methods=['GET'])
-@jwt_required
+@login_required
 @role_required('admin')
 def get_user(user_id):
     """获取用户详情"""
@@ -60,7 +31,7 @@ def get_user(user_id):
     }), 200
 
 @users_bp.route('/', methods=['POST'])
-@jwt_required
+@login_required
 @role_required('admin')
 def create_user():
     """创建用户"""
@@ -118,7 +89,7 @@ def create_user():
         return jsonify({'message': '用户创建失败'}), 500
 
 @users_bp.route('/<int:user_id>', methods=['PUT'])
-@jwt_required
+@login_required
 @role_required('admin')
 def update_user(user_id):
     """更新用户信息"""
@@ -155,7 +126,7 @@ def update_user(user_id):
         return jsonify({'message': '用户更新失败'}), 500
 
 @users_bp.route('/<int:user_id>', methods=['DELETE'])
-@jwt_required
+@login_required
 @role_required('admin')
 def delete_user(user_id):
     """删除用户"""
@@ -173,7 +144,7 @@ def delete_user(user_id):
         return jsonify({'message': '用户删除失败'}), 500
 
 @users_bp.route('/<int:user_id>/status', methods=['PUT'])
-@jwt_required
+@login_required
 @role_required('admin')
 def update_user_status(user_id):
     """更新用户状态"""
@@ -201,7 +172,7 @@ def update_user_status(user_id):
         return jsonify({'message': '用户状态更新失败'}), 500
 
 @users_bp.route('/departments', methods=['GET'])
-@jwt_required
+@login_required
 def get_departments():
     """获取所有部门列表"""
     departments = db.session.query(User.department).distinct().filter(

@@ -2,15 +2,15 @@ from flask import Blueprint, request, jsonify
 from datetime import datetime, date, timedelta
 from app import db
 from app.models import DailyReport, WeeklyReport, User, TimeRecord
-from app.middlewares.auth import jwt_required, role_required, permission_required, get_current_user
+from app.middlewares.auth import login_required, role_required
 
 reports_bp = Blueprint('reports', __name__)
 
 # ==================== 日报相关接口 ====================
 
 @reports_bp.route('/daily', methods=['GET'])
-@jwt_required
-@permission_required('report_read')
+@login_required
+@role_required('report_read')
 def get_daily_reports():
     """获取日报列表"""
     page = request.args.get('page', 1, type=int)
@@ -60,8 +60,8 @@ def get_daily_reports():
     }), 200
 
 @reports_bp.route('/daily/<int:report_id>', methods=['GET'])
-@jwt_required
-@permission_required('report_read')
+@login_required
+@role_required('report_read')
 def get_daily_report(report_id):
     """获取日报详情"""
     report = DailyReport.query.get(report_id)
@@ -74,11 +74,11 @@ def get_daily_report(report_id):
     }), 200
 
 @reports_bp.route('/daily', methods=['POST'])
-@jwt_required
-@permission_required('report_create')
+@login_required
+@role_required('report_create')
 def create_daily_report():
     """创建日报"""
-    current_user = get_current_user()
+    current_user = request.current_user
     data = request.get_json()
     
     # 验证必填字段
@@ -137,11 +137,11 @@ def create_daily_report():
         return jsonify({'message': '日报创建失败'}), 500
 
 @reports_bp.route('/daily/<int:report_id>', methods=['PUT'])
-@jwt_required
-@permission_required('report_update')
+@login_required
+@role_required('report_update')
 def update_daily_report(report_id):
     """更新日报"""
-    current_user = get_current_user()
+    current_user = request.current_user
     report = DailyReport.query.get(report_id)
     
     if not report:
@@ -174,11 +174,11 @@ def update_daily_report(report_id):
         return jsonify({'message': '日报更新失败'}), 500
 
 @reports_bp.route('/daily/<int:report_id>/approve', methods=['POST'])
-@jwt_required
-@permission_required('report_approve')
+@login_required
+@role_required('report_approve')
 def approve_daily_report(report_id):
     """审核日报"""
-    current_user = get_current_user()
+    current_user = request.current_user
     report = DailyReport.query.get(report_id)
     
     if not report:
@@ -206,8 +206,8 @@ def approve_daily_report(report_id):
 # ==================== 周报相关接口 ====================
 
 @reports_bp.route('/weekly', methods=['GET'])
-@jwt_required
-@permission_required('report_read')
+@login_required
+@role_required('report_read')
 def get_weekly_reports():
     """获取周报列表"""
     page = request.args.get('page', 1, type=int)
@@ -257,8 +257,8 @@ def get_weekly_reports():
     }), 200
 
 @reports_bp.route('/weekly/<int:report_id>', methods=['GET'])
-@jwt_required
-@permission_required('report_read')
+@login_required
+@role_required('report_read')
 def get_weekly_report(report_id):
     """获取周报详情"""
     report = WeeklyReport.query.get(report_id)
@@ -271,11 +271,11 @@ def get_weekly_report(report_id):
     }), 200
 
 @reports_bp.route('/weekly', methods=['POST'])
-@jwt_required
-@permission_required('report_create')
+@login_required
+@role_required('report_create')
 def create_weekly_report():
     """创建周报"""
-    current_user = get_current_user()
+    current_user = request.current_user
     data = request.get_json()
     
     # 验证必填字段
@@ -349,11 +349,11 @@ def create_weekly_report():
         return jsonify({'message': '周报创建失败'}), 500
 
 @reports_bp.route('/weekly/<int:report_id>', methods=['PUT'])
-@jwt_required
-@permission_required('report_update')
+@login_required
+@role_required('report_update')
 def update_weekly_report(report_id):
     """更新周报"""
-    current_user = get_current_user()
+    current_user = request.current_user
     report = WeeklyReport.query.get(report_id)
     
     if not report:
@@ -386,11 +386,11 @@ def update_weekly_report(report_id):
         return jsonify({'message': '周报更新失败'}), 500
 
 @reports_bp.route('/weekly/<int:report_id>/approve', methods=['POST'])
-@jwt_required
-@permission_required('report_approve')
+@login_required
+@role_required('report_approve')
 def approve_weekly_report(report_id):
     """审核周报"""
-    current_user = get_current_user()
+    current_user = request.current_user
     report = WeeklyReport.query.get(report_id)
     
     if not report:
@@ -418,8 +418,8 @@ def approve_weekly_report(report_id):
 # ==================== 报告统计接口 ====================
 
 @reports_bp.route('/statistics', methods=['GET'])
-@jwt_required
-@permission_required('report_read')
+@login_required
+@role_required('report_read')
 def get_report_statistics():
     """获取报告统计"""
     user_id = request.args.get('user_id', type=int)

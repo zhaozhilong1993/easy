@@ -24,6 +24,11 @@ class User(db.Model):
     # 关联角色
     roles = db.relationship('Role', secondary='user_roles', backref=db.backref('users', lazy='dynamic'))
     
+    @property
+    def is_active(self):
+        """检查用户是否激活"""
+        return self.status == 'active'
+    
     def __repr__(self):
         return f'<User {self.username}>'
     
@@ -38,6 +43,7 @@ class User(db.Model):
             'department': self.department,
             'position': self.position,
             'status': self.status,
+            'is_active': self.is_active,
             'hourly_rate': float(self.hourly_rate) if self.hourly_rate else None,
             'monthly_salary': float(self.monthly_salary) if self.monthly_salary else None,
             'cost_calculation_method': self.cost_calculation_method,

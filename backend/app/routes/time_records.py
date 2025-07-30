@@ -2,13 +2,12 @@ from flask import Blueprint, request, jsonify
 from datetime import datetime, date, timedelta
 from app import db
 from app.models import TimeRecord, WorkType, User, Project
-from app.middlewares.auth import jwt_required, role_required, permission_required, get_current_user
+from app.middlewares.auth import login_required, role_required
 
 time_records_bp = Blueprint('time_records', __name__)
 
 @time_records_bp.route('/', methods=['GET'])
-@jwt_required
-@permission_required('time_record_read')
+@login_required
 def get_time_records():
     """获取时间记录列表"""
     page = request.args.get('page', 1, type=int)
@@ -62,8 +61,7 @@ def get_time_records():
     }), 200
 
 @time_records_bp.route('/<int:record_id>', methods=['GET'])
-@jwt_required
-@permission_required('time_record_read')
+@login_required
 def get_time_record(record_id):
     """获取时间记录详情"""
     record = TimeRecord.query.get(record_id)
@@ -76,11 +74,10 @@ def get_time_record(record_id):
     }), 200
 
 @time_records_bp.route('/', methods=['POST'])
-@jwt_required
-@permission_required('time_record_create')
+@login_required
 def create_time_record():
     """创建时间记录"""
-    current_user = get_current_user()
+    current_user = request.current_user
     data = request.get_json()
     
     # 验证必填字段
@@ -149,11 +146,10 @@ def create_time_record():
         return jsonify({'message': '时间记录创建失败'}), 500
 
 @time_records_bp.route('/<int:record_id>', methods=['PUT'])
-@jwt_required
-@permission_required('time_record_update')
+@login_required
 def update_time_record(record_id):
     """更新时间记录"""
-    current_user = get_current_user()
+    current_user = request.current_user
     record = TimeRecord.query.get(record_id)
     
     if not record:
@@ -197,11 +193,10 @@ def update_time_record(record_id):
         return jsonify({'message': '时间记录更新失败'}), 500
 
 @time_records_bp.route('/<int:record_id>', methods=['DELETE'])
-@jwt_required
-@permission_required('time_record_delete')
+@login_required
 def delete_time_record(record_id):
     """删除时间记录"""
-    current_user = get_current_user()
+    current_user = request.current_user
     record = TimeRecord.query.get(record_id)
     
     if not record:
@@ -223,11 +218,10 @@ def delete_time_record(record_id):
         return jsonify({'message': '时间记录删除失败'}), 500
 
 @time_records_bp.route('/<int:record_id>/approve', methods=['POST'])
-@jwt_required
-@permission_required('time_record_approve')
+@login_required
 def approve_time_record(record_id):
     """审核时间记录"""
-    current_user = get_current_user()
+    current_user = request.current_user
     record = TimeRecord.query.get(record_id)
     
     if not record:
@@ -253,8 +247,7 @@ def approve_time_record(record_id):
         return jsonify({'message': message}), 500
 
 @time_records_bp.route('/statistics', methods=['GET'])
-@jwt_required
-@permission_required('time_record_read')
+@login_required
 def get_time_statistics():
     """获取时间统计"""
     user_id = request.args.get('user_id', type=int)
@@ -309,7 +302,7 @@ def get_time_statistics():
     }), 200
 
 @time_records_bp.route('/work-types', methods=['GET'])
-@jwt_required
+@login_required
 def get_work_types():
     """获取工作类型列表"""
     work_types = WorkType.query.filter_by(is_active=True).all()
@@ -319,7 +312,7 @@ def get_work_types():
     }), 200
 
 @time_records_bp.route('/work-types', methods=['POST'])
-@jwt_required
+@login_required
 @role_required('admin')
 def create_work_type():
     """创建工作类型"""

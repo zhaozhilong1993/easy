@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from datetime import datetime, date, timedelta
 from app import db
 from app.models import CostCalculation, ProjectCost, CostReport, User, Project, TimeRecord
-from app.middlewares.auth import jwt_required, role_required, permission_required, get_current_user
+from app.middlewares.auth import login_required, role_required, permission_required, get_current_user
 import json
 
 costs_bp = Blueprint('costs', __name__)
@@ -10,7 +10,7 @@ costs_bp = Blueprint('costs', __name__)
 # ==================== 成本计算相关接口 ====================
 
 @costs_bp.route('/calculate', methods=['POST'])
-@jwt_required
+@login_required
 @permission_required('cost_calculate')
 def calculate_cost():
     """计算个人成本"""
@@ -86,7 +86,7 @@ def calculate_cost():
         return jsonify({'message': '成本计算失败'}), 500
 
 @costs_bp.route('/calculations', methods=['GET'])
-@jwt_required
+@login_required
 @permission_required('cost_read')
 def get_cost_calculations():
     """获取成本计算记录列表"""
@@ -139,7 +139,7 @@ def get_cost_calculations():
 # ==================== 项目成本相关接口 ====================
 
 @costs_bp.route('/project/<int:project_id>', methods=['POST'])
-@jwt_required
+@login_required
 @permission_required('cost_calculate')
 def calculate_project_cost(project_id):
     """计算项目成本"""
@@ -234,7 +234,7 @@ def calculate_project_cost(project_id):
         return jsonify({'message': '项目成本计算失败'}), 500
 
 @costs_bp.route('/project/<int:project_id>', methods=['GET'])
-@jwt_required
+@login_required
 @permission_required('cost_read')
 def get_project_costs(project_id):
     """获取项目成本记录"""
@@ -267,7 +267,7 @@ def get_project_costs(project_id):
 # ==================== 成本报表相关接口 ====================
 
 @costs_bp.route('/reports', methods=['GET'])
-@jwt_required
+@login_required
 @permission_required('report_generate')
 def get_cost_reports():
     """获取成本报表列表"""
@@ -298,7 +298,7 @@ def get_cost_reports():
     }), 200
 
 @costs_bp.route('/reports', methods=['POST'])
-@jwt_required
+@login_required
 @permission_required('report_generate')
 def generate_cost_report():
     """生成成本报表"""
@@ -426,7 +426,7 @@ def generate_cost_report():
         return jsonify({'message': '成本报表生成失败'}), 500
 
 @costs_bp.route('/reports/<int:report_id>', methods=['GET'])
-@jwt_required
+@login_required
 @permission_required('report_read')
 def get_cost_report(report_id):
     """获取成本报表详情"""
@@ -442,7 +442,7 @@ def get_cost_report(report_id):
 # ==================== 成本统计接口 ====================
 
 @costs_bp.route('/statistics', methods=['GET'])
-@jwt_required
+@login_required
 @permission_required('cost_read')
 def get_cost_statistics():
     """获取成本统计"""

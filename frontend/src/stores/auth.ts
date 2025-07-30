@@ -6,41 +6,30 @@ interface User {
   username: string;
   name: string;
   email: string;
-  department: string;
-  role: string;
-  hourly_rate?: number;
-  is_active: boolean;
+  roles: string[];
 }
 
 interface AuthState {
   user: User | null;
-  token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  
-  // Actions
   login: (username: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   getProfile: () => Promise<void>;
-  updateProfile: (data: Partial<User>) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
-  token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
   isAuthenticated: false,
   isLoading: false,
 
   login: async (username: string, password: string) => {
-    set({ isLoading: true });
     try {
-      const response = await authAPI.login({ username, password });
-      const { access_token, user } = response.data;
+      set({ isLoading: true });
+      const response = await authAPI.login(username, password);
       
-      localStorage.setItem('token', access_token);
       set({
-        token: access_token,
-        user,
+        user: response.data.user,
         isAuthenticated: true,
         isLoading: false,
       });
@@ -50,42 +39,36 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  logout: () => {
-    localStorage.removeItem('token');
-    set({
-      token: null,
-      user: null,
-      isAuthenticated: false,
-    });
+  logout: async () => {
+    try {
+      await authAPI.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      set({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+      });
+    }
   },
 
   getProfile: async () => {
-    set({ isLoading: true });
     try {
-      const response = await authAPI.profile();
-      const user = response.data.user;
+      set({ isLoading: true });
+      const response = await authAPI.getProfile();
+      
       set({
-        user,
+        user: response.data.user,
         isAuthenticated: true,
         isLoading: false,
       });
     } catch (error) {
-      set({ isLoading: false });
-      throw error;
-    }
-  },
-
-  updateProfile: async (data: Partial<User>) => {
-    set({ isLoading: true });
-    try {
-      const response = await authAPI.updateProfile(data);
-      const user = response.data.user;
       set({
-        user,
+        user: null,
+        isAuthenticated: false,
         isLoading: false,
       });
-    } catch (error) {
-      set({ isLoading: false });
       throw error;
     }
   },

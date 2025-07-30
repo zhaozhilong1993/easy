@@ -2,7 +2,7 @@ import os
 from app import create_app
 from app.services.init_data import init_database
 
-app = create_app(os.getenv('FLASK_ENV', 'development'))
+app = create_app()
 
 @app.cli.command('init-db')
 def init_db():
