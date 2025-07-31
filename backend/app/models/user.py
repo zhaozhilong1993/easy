@@ -47,7 +47,7 @@ class User(db.Model):
             'hourly_rate': float(self.hourly_rate) if self.hourly_rate else None,
             'monthly_salary': float(self.monthly_salary) if self.monthly_salary else None,
             'cost_calculation_method': self.cost_calculation_method,
-            'roles': [role.name for role in self.roles],
+            'roles': [{'id': role.id, 'name': role.name, 'description': role.description} for role in self.roles],
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }
