@@ -43,21 +43,17 @@ const { TabPane } = Tabs;
 
 interface DailyReport {
   id: number;
-  user: {
-    id: number;
-    name: string;
-    username: string;
-  };
+  user_id: number;
+  user_name: string;
   date: string;
-  completed_tasks: string;
-  ongoing_tasks: string;
-  next_plan: string;
-  problems: string;
+  report_date: string;
+  work_content: string;
+  progress: string;
+  issues: string;
+  plans: string;
   status: string;
-  approved_by?: {
-    id: number;
-    name: string;
-  };
+  approved_by?: number;
+  approver_name?: string;
   approved_at?: string;
   created_at: string;
   updated_at: string;
@@ -301,14 +297,14 @@ export default function ReportsPage() {
     },
     {
       title: '提交人',
-      dataIndex: 'user',
-      key: 'user',
-      render: (user: any) => (
+      dataIndex: 'user_name',
+      key: 'user_name',
+      render: (userName: string) => (
         <div className="flex items-center">
           <Avatar size="small" className="mr-2">
-            {user.name.charAt(0)}
+            {userName?.charAt(0) || '?'}
           </Avatar>
-          <span>{user.name}</span>
+          <span>{userName || '未知用户'}</span>
         </div>
       ),
     },
@@ -405,14 +401,14 @@ export default function ReportsPage() {
     },
     {
       title: '提交人',
-      dataIndex: 'user',
-      key: 'user',
-      render: (user: any) => (
+      dataIndex: 'user_name',
+      key: 'user_name',
+      render: (userName: string) => (
         <div className="flex items-center">
           <Avatar size="small" className="mr-2">
-            {user.name.charAt(0)}
+            {userName?.charAt(0) || '?'}
           </Avatar>
-          <span>{user.name}</span>
+          <span>{userName || '未知用户'}</span>
         </div>
       ),
     },

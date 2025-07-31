@@ -102,7 +102,7 @@ export default function TimeRecordsPage() {
     try {
       setLoading(true);
       const response = await timeRecordAPI.getTimeRecords();
-      setTimeRecords(response.data.time_records || response.data || []);
+      setTimeRecords(response.data.records || response.data.time_records || response.data || []);
     } catch (error) {
       message.error('获取工时记录失败');
     } finally {
@@ -323,9 +323,11 @@ export default function TimeRecordsPage() {
   ];
 
   // 统计信息
-  const totalHours = (timeRecords || []).reduce((sum, record) => sum + (record.hours || 0), 0);
-  const pendingCount = (timeRecords || []).filter(record => record.status === 'pending').length;
-  const approvedCount = (timeRecords || []).filter(record => record.status === 'approved').length;
+  console.log('timeRecords type:', typeof timeRecords, 'value:', timeRecords);
+  const timeRecordsArray = Array.isArray(timeRecords) ? timeRecords : [];
+  const totalHours = timeRecordsArray.reduce((sum, record) => sum + (record.hours || 0), 0);
+  const pendingCount = timeRecordsArray.filter(record => record.status === 'pending').length;
+  const approvedCount = timeRecordsArray.filter(record => record.status === 'approved').length;
 
   return (
     <MainLayout>

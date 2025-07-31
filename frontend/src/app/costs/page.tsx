@@ -127,9 +127,10 @@ export default function CostsPage() {
     try {
       setLoading(true);
       const response = await costAPI.getPersonalCalculations();
-      setPersonalCalculations(response.data);
+      setPersonalCalculations(response.data.calculations || response.data || []);
     } catch (error) {
-      message.error('获取个人成本计算失败');
+      console.log('Personal calculations API error:', error);
+      setPersonalCalculations([]);
     } finally {
       setLoading(false);
     }
@@ -526,10 +527,14 @@ export default function CostsPage() {
   };
 
   // 统计信息
-  const totalPersonalCost = personalCalculations.reduce((sum, calc) => sum + calc.total_cost, 0);
-  const totalProjectCost = projectCosts.reduce((sum, cost) => sum + cost.total_cost, 0);
-  const totalReports = costReports.length;
-  const completedReports = costReports.filter(report => report.status === 'completed').length;
+  const personalCalculationsArray = Array.isArray(personalCalculations) ? personalCalculations : [];
+  const projectCostsArray = Array.isArray(projectCosts) ? projectCosts : [];
+  const costReportsArray = Array.isArray(costReports) ? costReports : [];
+  
+  const totalPersonalCost = personalCalculationsArray.reduce((sum, calc) => sum + (calc.total_cost || 0), 0);
+  const totalProjectCost = projectCostsArray.reduce((sum, cost) => sum + (cost.total_cost || 0), 0);
+  const totalReports = costReportsArray.length;
+  const completedReports = costReportsArray.filter(report => report.status === 'completed').length;
 
   // 图表配置
   const costTrendOption = {
