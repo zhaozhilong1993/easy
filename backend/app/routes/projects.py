@@ -126,7 +126,7 @@ def update_project(project_id):
     data = request.get_json()
     
     # 允许更新的字段
-    allowed_fields = ['name', 'description', 'start_date', 'end_date', 'status', 'budget']
+    allowed_fields = ['name', 'description', 'start_date', 'end_date', 'status', 'budget', 'manager_id']
     
     for field in allowed_fields:
         if field in data:
@@ -136,6 +136,12 @@ def update_project(project_id):
                     setattr(project, field, date_value)
                 except ValueError:
                     return jsonify({'message': '日期格式错误，请使用YYYY-MM-DD格式'}), 400
+            elif field == 'manager_id':
+                # 验证项目经理是否存在
+                manager = User.query.get(data[field])
+                if not manager:
+                    return jsonify({'message': '项目经理不存在'}), 400
+                setattr(project, field, data[field])
             else:
                 setattr(project, field, data[field])
     
