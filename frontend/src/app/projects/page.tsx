@@ -77,7 +77,6 @@ export default function ProjectsPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('ProjectsPage: fetching projects and users');
       fetchProjects();
       fetchUsers();
     }
