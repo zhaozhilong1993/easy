@@ -327,7 +327,7 @@ export default function UsersPage() {
                     placeholder="请选择角色"
                     optionFilterProp="children"
                   >
-                    {roles.map(role => (
+                    {roles.filter(role => role.is_active).map(role => (
                       <Option key={role.id} value={role.name}>
                         {role.name}
                         <span className="text-gray-400 ml-2">

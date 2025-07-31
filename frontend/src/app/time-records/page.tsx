@@ -30,7 +30,7 @@ import {
   CalendarOutlined,
   BarChartOutlined
 } from '@ant-design/icons';
-import { timeRecordAPI, projectAPI } from '@/services/api';
+import { timeRecordAPI, projectAPI, userAPI } from '@/services/api';
 import MainLayout from '@/components/Layout/MainLayout';
 import dayjs from 'dayjs';
 import { useAuthStore } from '@/stores/auth';
@@ -93,6 +93,7 @@ export default function TimeRecordsPage() {
       console.log('TimeRecordsPage: fetching time records, work types and users');
       fetchTimeRecords();
       fetchWorkTypes();
+      fetchProjects();
       fetchUsers();
     }
   }, [isAuthenticated]);
@@ -121,9 +122,19 @@ export default function TimeRecordsPage() {
   const fetchProjects = async () => {
     try {
       const response = await projectAPI.getProjects();
-      setProjects(response.data);
+      setProjects(response.data.projects || response.data || []);
     } catch (error) {
       message.error('获取项目列表失败');
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const response = await userAPI.getUsers();
+      // 这里可以设置用户列表，如果需要的话
+      console.log('Users loaded:', response.data.users?.length || 0);
+    } catch (error) {
+      message.error('获取用户列表失败');
     }
   };
 

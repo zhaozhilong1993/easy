@@ -29,7 +29,7 @@ import {
   CalendarOutlined,
   DollarOutlined
 } from '@ant-design/icons';
-import { projectAPI } from '@/services/api';
+import { projectAPI, userAPI } from '@/services/api';
 import MainLayout from '@/components/Layout/MainLayout';
 import dayjs from 'dayjs';
 import { useAuthStore } from '@/stores/auth';
@@ -92,7 +92,7 @@ export default function ProjectsPage() {
     try {
       setLoading(true);
       const response = await projectAPI.getProjects();
-      setProjects(response.data);
+      setProjects(response.data.projects || response.data || []);
     } catch (error) {
       message.error('获取项目列表失败');
     } finally {
@@ -102,8 +102,8 @@ export default function ProjectsPage() {
 
   const fetchUsers = async () => {
     try {
-      const response = await projectAPI.getUsers();
-      setUsers(response.data);
+      const response = await userAPI.getUsers();
+      setUsers(response.data.users || []);
     } catch (error) {
       message.error('获取用户列表失败');
     }
@@ -380,6 +380,18 @@ export default function ProjectsPage() {
                   <Input placeholder="请输入项目名称" />
                 </Form.Item>
               </Col>
+              <Col span={12}>
+                <Form.Item
+                  name="code"
+                  label="项目编号"
+                  rules={[{ required: true, message: '请输入项目编号' }]}
+                >
+                  <Input placeholder="请输入项目编号" />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
               <Col span={12}>
                 <Form.Item
                   name="status"

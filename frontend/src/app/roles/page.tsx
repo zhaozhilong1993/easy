@@ -130,6 +130,19 @@ export default function RolesPage() {
     }
   };
 
+  const handleToggleStatus = async (role: Role) => {
+    try {
+      await roleAPI.updateRole(role.id, {
+        ...role,
+        is_active: !role.is_active
+      });
+      message.success(role.is_active ? '角色已禁用' : '角色已启用');
+      fetchRoles();
+    } catch (error) {
+      message.error('状态更新失败');
+    }
+  };
+
   const handleSubmit = async (values: any) => {
     try {
       if (editingRole) {
@@ -184,10 +197,13 @@ export default function RolesPage() {
       title: '状态',
       dataIndex: 'is_active',
       key: 'is_active',
-      render: (isActive: boolean) => (
-        <Tag color={isActive ? 'green' : 'red'}>
-          {isActive ? '启用' : '禁用'}
-        </Tag>
+      render: (isActive: boolean, record: Role) => (
+        <Switch
+          checked={isActive}
+          onChange={() => handleToggleStatus(record)}
+          checkedChildren="启用"
+          unCheckedChildren="禁用"
+        />
       ),
     },
     {

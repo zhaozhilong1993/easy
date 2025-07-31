@@ -110,7 +110,7 @@ export default function ReportsPage() {
     try {
       setLoading(true);
       const response = await reportAPI.getDailyReports();
-      setDailyReports(response.data);
+      setDailyReports(response.data.reports || response.data || []);
     } catch (error) {
       message.error('获取日报列表失败');
     } finally {
@@ -121,7 +121,7 @@ export default function ReportsPage() {
   const fetchWeeklyReports = async () => {
     try {
       const response = await reportAPI.getWeeklyReports();
-      setWeeklyReports(response.data);
+      setWeeklyReports(response.data.reports || response.data || []);
     } catch (error) {
       message.error('获取周报列表失败');
     }
