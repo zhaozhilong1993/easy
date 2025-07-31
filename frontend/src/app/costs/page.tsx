@@ -157,9 +157,10 @@ export default function CostsPage() {
   const fetchProjects = async () => {
     try {
       const response = await projectAPI.getProjects();
-      setProjects(response.data);
+      setProjects(response.data.projects || response.data || []);
     } catch (error) {
       message.error('获取项目列表失败');
+      setProjects([]);
     }
   };
 
@@ -904,4 +905,4 @@ export default function CostsPage() {
       </div>
     </MainLayout>
   );
-} 
+}
