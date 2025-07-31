@@ -16,6 +16,8 @@ interface AuthState {
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   getProfile: () => Promise<void>;
+  hasRole: (role: string) => boolean;
+  hasPermission: (permission: string) => boolean;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
@@ -71,5 +73,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       });
       throw error;
     }
+  },
+
+  hasRole: (role: string) => {
+    const { user } = get();
+    return user?.roles?.includes(role) || false;
+  },
+
+  hasPermission: (permission: string) => {
+    const { user } = get();
+    // 这里可以根据具体的权限系统来实现
+    // 目前简单返回true，实际应该检查用户的具体权限
+    return user?.roles?.includes('admin') || false;
   },
 })); 

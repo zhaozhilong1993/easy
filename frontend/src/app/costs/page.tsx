@@ -166,9 +166,10 @@ export default function CostsPage() {
   const fetchUsers = async () => {
     try {
       const response = await userAPI.getUsers();
-      setUsers(response.data);
+      setUsers(response.data.users || response.data || []);
     } catch (error) {
       message.error('获取用户列表失败');
+      setUsers([]);
     }
   };
 
@@ -770,7 +771,7 @@ export default function CostsPage() {
                     rules={[{ required: true, message: '请选择员工' }]}
                   >
                     <Select placeholder="请选择员工">
-                      {users.map(user => (
+                      {(users || []).map(user => (
                         <Option key={user.id} value={user.id}>
                           {user.name} ({user.username})
                         </Option>
@@ -785,7 +786,7 @@ export default function CostsPage() {
                     rules={[{ required: true, message: '请选择项目' }]}
                   >
                     <Select placeholder="请选择项目">
-                      {projects.map(project => (
+                      {(projects || []).map(project => (
                         <Option key={project.id} value={project.id}>
                           {project.name}
                         </Option>
@@ -803,7 +804,7 @@ export default function CostsPage() {
                 rules={[{ required: true, message: '请选择项目' }]}
               >
                 <Select placeholder="请选择项目">
-                  {projects.map(project => (
+                  {(projects || []).map(project => (
                     <Option key={project.id} value={project.id}>
                       {project.name}
                     </Option>

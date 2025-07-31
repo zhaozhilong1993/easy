@@ -37,7 +37,7 @@ interface MainLayoutProps {
 
 export default function MainLayout({ children }: MainLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
-  const { user, logout } = useAuthStore();
+  const { user, logout, hasRole } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -50,48 +50,66 @@ export default function MainLayout({ children }: MainLayoutProps) {
     router.push('/login');
   };
 
-  const menuItems = [
-    {
-      key: '/',
-      icon: <DashboardOutlined />,
-      label: '仪表盘',
-    },
-    {
-      key: '/users',
-      icon: <TeamOutlined />,
-      label: '用户管理',
-    },
-    {
-      key: '/roles',
-      icon: <SettingOutlined />,
-      label: '角色管理',
-    },
-    {
-      key: '/projects',
-      icon: <ProjectOutlined />,
-      label: '项目管理',
-    },
-    {
-      key: '/time-records',
-      icon: <ClockCircleOutlined />,
-      label: '工时记录',
-    },
-    {
-      key: '/reports',
-      icon: <FileTextOutlined />,
-      label: '日报周报',
-    },
-    {
-      key: '/costs',
-      icon: <CalculatorOutlined />,
-      label: '成本统计',
-    },
-    {
-      key: '/settings',
-      icon: <SettingOutlined />,
-      label: '系统设置',
-    },
-  ];
+  // 根据用户角色过滤菜单项
+  const getFilteredMenuItems = () => {
+    const allMenuItems = [
+      {
+        key: '/',
+        icon: <DashboardOutlined />,
+        label: '仪表盘',
+        roles: ['admin', 'manager', 'developer'], // 所有角色都可以访问
+      },
+      {
+        key: '/users',
+        icon: <TeamOutlined />,
+        label: '用户管理',
+        roles: ['admin'], // 只有admin可以访问
+      },
+      {
+        key: '/roles',
+        icon: <SettingOutlined />,
+        label: '角色管理',
+        roles: ['admin'], // 只有admin可以访问
+      },
+      {
+        key: '/projects',
+        icon: <ProjectOutlined />,
+        label: '项目管理',
+        roles: ['admin', 'manager'], // admin和manager可以访问
+      },
+      {
+        key: '/time-records',
+        icon: <ClockCircleOutlined />,
+        label: '工时记录',
+        roles: ['admin', 'manager', 'developer'], // 所有角色都可以访问
+      },
+      {
+        key: '/reports',
+        icon: <FileTextOutlined />,
+        label: '日报周报',
+        roles: ['admin', 'manager', 'developer'], // 所有角色都可以访问
+      },
+      {
+        key: '/costs',
+        icon: <CalculatorOutlined />,
+        label: '成本统计',
+        roles: ['admin', 'manager'], // admin和manager可以访问
+      },
+      {
+        key: '/settings',
+        icon: <SettingOutlined />,
+        label: '系统设置',
+        roles: ['admin'], // 只有admin可以访问
+      },
+    ];
+
+    return allMenuItems.filter(item => {
+      if (!user) return false;
+      return item.roles.some(role => hasRole(role));
+    });
+  };
+
+  const menuItems = getFilteredMenuItems();
 
   const userMenuItems = [
     {
