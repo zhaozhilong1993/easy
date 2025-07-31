@@ -89,6 +89,10 @@ def update_role(role_id):
     if data.get('description'):
         role.description = data['description']
     
+    # 更新启用状态
+    if 'is_active' in data:
+        role.is_active = data['is_active']
+    
     # 更新权限
     if data.get('permissions'):
         permissions = Permission.query.filter(
