@@ -40,23 +40,17 @@ const { RangePicker } = DatePicker;
 interface Project {
   id: number;
   name: string;
+  code: string;
   description: string;
   status: string;
   start_date: string;
   end_date: string;
   budget: number;
+  used_budget?: number;
   progress: number;
-  manager: {
-    id: number;
-    name: string;
-    username: string;
-  };
-  members: Array<{
-    id: number;
-    name: string;
-    username: string;
-    role: string;
-  }>;
+  manager_id: number;
+  manager_name: string;
+  member_count: number;
   created_at: string;
   updated_at: string;
 }
@@ -124,7 +118,7 @@ export default function ProjectsPage() {
       start_date: dayjs(record.start_date),
       end_date: dayjs(record.end_date),
       budget: record.budget,
-      manager_id: record.manager.id
+      manager_id: record.manager_id
     });
     setModalVisible(true);
   };
@@ -240,14 +234,14 @@ export default function ProjectsPage() {
     },
     {
       title: '项目经理',
-      dataIndex: 'manager',
-      key: 'manager',
-      render: (manager: any) => (
+      dataIndex: 'manager_name',
+      key: 'manager_name',
+      render: (managerName: string) => (
         <div className="flex items-center">
           <Avatar size="small" className="mr-2">
-            {manager.name.charAt(0)}
+            {managerName?.charAt(0) || '?'}
           </Avatar>
-          <span>{manager.name}</span>
+          <span>{managerName || '未分配'}</span>
         </div>
       ),
     },
@@ -273,19 +267,15 @@ export default function ProjectsPage() {
     },
     {
       title: '成员',
-      dataIndex: 'members',
-      key: 'members',
-      render: (members: any[]) => (
+      dataIndex: 'member_count',
+      key: 'member_count',
+      render: (memberCount: number) => (
         <div className="flex items-center">
           <Avatar.Group maxCount={3} size="small">
-            {members.map(member => (
-              <Avatar key={member.id} size="small">
-                {member.name.charAt(0)}
-              </Avatar>
-            ))}
+            {/* 这里可以显示成员头像，如果有成员数据的话 */}
           </Avatar.Group>
           <span className="ml-2 text-sm text-gray-500">
-            {members.length}人
+            {memberCount || 0}人
           </span>
         </div>
       ),

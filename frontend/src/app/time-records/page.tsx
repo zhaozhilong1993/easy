@@ -113,7 +113,7 @@ export default function TimeRecordsPage() {
   const fetchWorkTypes = async () => {
     try {
       const response = await timeRecordAPI.getWorkTypes();
-      setWorkTypes(response.data);
+      setWorkTypes(response.data.work_types || response.data || []);
     } catch (error) {
       message.error('获取工作类型失败');
     }
@@ -431,7 +431,7 @@ export default function TimeRecordsPage() {
                   rules={[{ required: true, message: '请选择工作类型' }]}
                 >
                   <Select placeholder="请选择工作类型">
-                    {workTypes.map(workType => (
+                    {(workTypes || []).map(workType => (
                       <Option key={workType.id} value={workType.id}>
                         {workType.name}
                       </Option>
