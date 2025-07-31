@@ -171,20 +171,22 @@ export default function ReportsPage() {
     
     if (type === 'daily') {
       form.setFieldsValue({
-        date: dayjs(record.date),
-        completed_tasks: record.completed_tasks,
-        ongoing_tasks: record.ongoing_tasks,
-        next_plan: record.next_plan,
-        problems: record.problems,
+        date: dayjs(record.report_date),
+        completed_tasks: record.work_content,
+        ongoing_tasks: record.progress,
+        problems: record.issues,
+        next_plan: record.plans,
       });
     } else {
       form.setFieldsValue({
         week_start: dayjs(record.week_start),
         week_end: dayjs(record.week_end),
+        week_summary: record.week_summary,
         completed_tasks: record.completed_tasks,
         ongoing_tasks: record.ongoing_tasks,
-        next_week_plan: record.next_week_plan,
-        problems: record.problems,
+        next_week_plans: record.next_week_plans,
+        challenges: record.challenges,
+        suggestions: record.suggestions,
       });
     }
     
@@ -233,14 +235,22 @@ export default function ReportsPage() {
       
       if (reportType === 'daily') {
         data = {
-          ...values,
           date: values.date.format('YYYY-MM-DD'),
+          completed_tasks: values.completed_tasks,
+          ongoing_tasks: values.ongoing_tasks,
+          problems: values.problems,
+          next_plan: values.next_plan,
         };
       } else {
         data = {
-          ...values,
           week_start: values.week_start.format('YYYY-MM-DD'),
           week_end: values.week_end.format('YYYY-MM-DD'),
+          week_summary: values.week_summary,
+          completed_tasks: values.completed_tasks,
+          ongoing_tasks: values.ongoing_tasks,
+          next_week_plans: values.next_week_plans,
+          challenges: values.challenges,
+          suggestions: values.suggestions,
         };
       }
 
@@ -624,26 +634,38 @@ export default function ReportsPage() {
                 <DatePicker style={{ width: '100%' }} />
               </Form.Item>
             ) : (
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name="week_start"
-                    label="周开始日期"
-                    rules={[{ required: true, message: '请选择周开始日期' }]}
-                  >
-                    <DatePicker style={{ width: '100%' }} />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="week_end"
-                    label="周结束日期"
-                    rules={[{ required: true, message: '请选择周结束日期' }]}
-                  >
-                    <DatePicker style={{ width: '100%' }} />
-                  </Form.Item>
-                </Col>
-              </Row>
+              <>
+                <Form.Item
+                  name="week_summary"
+                  label="本周总结"
+                  rules={[{ required: true, message: '请输入本周总结' }]}
+                >
+                  <TextArea 
+                    rows={3} 
+                    placeholder="请总结本周的主要工作成果..."
+                  />
+                </Form.Item>
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item
+                      name="week_start"
+                      label="周开始日期"
+                      rules={[{ required: true, message: '请选择周开始日期' }]}
+                    >
+                      <DatePicker style={{ width: '100%' }} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name="week_end"
+                      label="周结束日期"
+                      rules={[{ required: true, message: '请选择周结束日期' }]}
+                    >
+                      <DatePicker style={{ width: '100%' }} />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </>
             )}
 
             <Form.Item
@@ -669,7 +691,7 @@ export default function ReportsPage() {
             </Form.Item>
 
             <Form.Item
-              name={reportType === 'daily' ? 'next_plan' : 'next_week_plan'}
+              name={reportType === 'daily' ? 'next_plan' : 'next_week_plans'}
               label={reportType === 'daily' ? '明日计划' : '下周计划'}
               rules={[{ required: true, message: `请输入${reportType === 'daily' ? '明日计划' : '下周计划'}` }]}
             >
@@ -679,15 +701,38 @@ export default function ReportsPage() {
               />
             </Form.Item>
 
-            <Form.Item
-              name="problems"
-              label="遇到的问题"
-            >
-              <TextArea 
-                rows={3} 
-                placeholder="请描述工作中遇到的问题和困难..."
-              />
-            </Form.Item>
+            {reportType === 'daily' ? (
+              <Form.Item
+                name="problems"
+                label="遇到的问题"
+              >
+                <TextArea 
+                  rows={3} 
+                  placeholder="请描述工作中遇到的问题和困难..."
+                />
+              </Form.Item>
+            ) : (
+              <>
+                <Form.Item
+                  name="challenges"
+                  label="遇到的挑战"
+                >
+                  <TextArea 
+                    rows={3} 
+                    placeholder="请描述本周遇到的挑战和困难..."
+                  />
+                </Form.Item>
+                <Form.Item
+                  name="suggestions"
+                  label="建议和意见"
+                >
+                  <TextArea 
+                    rows={3} 
+                    placeholder="请提出改进建议和意见..."
+                  />
+                </Form.Item>
+              </>
+            )}
 
             <Form.Item className="mb-0">
               <div className="flex justify-end space-x-2">
