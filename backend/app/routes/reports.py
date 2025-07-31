@@ -157,9 +157,22 @@ def update_daily_report(report_id):
     
     data = request.get_json()
     
+    # 映射前端字段名到后端字段名
+    field_mapping = {
+        'completed_tasks': 'work_content',
+        'ongoing_tasks': 'progress',
+        'problems': 'issues',
+        'next_plan': 'plans'
+    }
+    
     # 允许更新的字段
     allowed_fields = ['work_content', 'progress', 'issues', 'plans']
     
+    for frontend_field, backend_field in field_mapping.items():
+        if frontend_field in data:
+            setattr(report, backend_field, data[frontend_field])
+    
+    # 也支持直接使用后端字段名
     for field in allowed_fields:
         if field in data:
             setattr(report, field, data[field])
