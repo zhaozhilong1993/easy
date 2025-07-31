@@ -81,12 +81,13 @@ def create_daily_report():
     current_user = get_current_user()
     data = request.get_json()
     
-    # 验证必填字段
-    if not data.get('work_content'):
+    # 验证必填字段 - 前端发送的是completed_tasks，需要映射到work_content
+    work_content = data.get('completed_tasks') or data.get('work_content')
+    if not work_content:
         return jsonify({'message': '工作内容不能为空'}), 400
     
     # 解析日期
-    report_date = data.get('report_date')
+    report_date = data.get('date') or data.get('report_date')
     if report_date:
         try:
             report_date = datetime.strptime(report_date, '%Y-%m-%d').date()
@@ -117,10 +118,10 @@ def create_daily_report():
     report = DailyReport(
         user_id=current_user.id,
         report_date=report_date,
-        work_content=data['work_content'],
-        progress=data.get('progress', ''),
-        issues=data.get('issues', ''),
-        plans=data.get('plans', ''),
+        work_content=work_content,
+        progress=data.get('ongoing_tasks', ''),
+        issues=data.get('problems', ''),
+        plans=data.get('next_plan', ''),
         work_hours=work_hours
     )
     
