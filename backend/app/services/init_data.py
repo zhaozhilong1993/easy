@@ -83,7 +83,7 @@ def init_roles_and_permissions():
             'permissions': [
                 'project_read', 'project_update',
                 'time_record_read', 'time_record_approve',
-                'report_read', 'report_approve',
+                'report_create', 'report_read', 'report_update', 'report_approve',
                 'cost_read', 'cost_calculate',
                 'report_generate'
             ]
