@@ -66,6 +66,7 @@ export default function ProjectsPage() {
   const { isAuthenticated, token } = useAuthStore();
   const [projects, setProjects] = useState<Project[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [memberModalVisible, setMemberModalVisible] = useState(false);
@@ -100,6 +101,16 @@ export default function ProjectsPage() {
       setUsers(response.data.users || []);
     } catch (error) {
       message.error('获取用户列表失败');
+    }
+  };
+
+  const fetchProjectMembers = async (projectId: number) => {
+    try {
+      const response = await projectAPI.getProjectMembers(projectId);
+      setMembers(response.data.members || []);
+    } catch (error) {
+      message.error('获取项目成员失败');
+      setMembers([]);
     }
   };
 
@@ -157,6 +168,7 @@ export default function ProjectsPage() {
 
   const handleManageMembers = (project: Project) => {
     setCurrentProject(project);
+    fetchProjectMembers(project.id); // Fetch members for the current project
     setMemberModalVisible(true);
   };
 
@@ -491,13 +503,13 @@ export default function ProjectsPage() {
             <div>
               <h4 className="font-medium mb-2">当前成员</h4>
               <List
-                dataSource={currentProject?.members || []}
+                dataSource={members}
                 renderItem={(member) => (
                   <List.Item
                     actions={[
                       <Popconfirm
                         title="确定要移除这个成员吗？"
-                        onConfirm={() => handleRemoveMember(member.id)}
+                        onConfirm={() => handleRemoveMember(member.user_id)}
                         okText="确定"
                         cancelText="取消"
                       >
@@ -508,9 +520,9 @@ export default function ProjectsPage() {
                     ]}
                   >
                     <List.Item.Meta
-                      avatar={<Avatar>{member.name.charAt(0)}</Avatar>}
-                      title={member.name}
-                      description={`${member.username} - ${member.role}`}
+                      avatar={<Avatar>{member.user_name?.charAt(0) || '?'}</Avatar>}
+                      title={member.user_name}
+                      description={`${member.user_username} - ${member.role}`}
                     />
                   </List.Item>
                 )}
@@ -535,7 +547,7 @@ export default function ProjectsPage() {
                     optionFilterProp="children"
                   >
                     {users
-                      .filter(user => !currentProject?.members.some(m => m.id === user.id))
+                      .filter(user => !members.some(m => m.user_id === user.id))
                       .map(user => (
                         <Option key={user.id} value={user.id}>
                           {user.name} ({user.username})

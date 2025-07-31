@@ -171,6 +171,15 @@ export default function CostsPage() {
     }
   };
 
+  const fetchStatistics = async () => {
+    try {
+      // 这里可以获取成本统计相关的数据
+      console.log('Fetching cost statistics...');
+    } catch (error) {
+      message.error('获取统计数据失败');
+    }
+  };
+
   const handleCreateCalculation = (type: 'personal' | 'project') => {
     setCalculationType(type);
     setEditingCalculation(null);

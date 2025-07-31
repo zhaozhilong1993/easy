@@ -32,7 +32,7 @@ import {
   UserOutlined,
   ClockCircleOutlined
 } from '@ant-design/icons';
-import { reportAPI, projectAPI } from '@/services/api';
+import { reportAPI, projectAPI, userAPI } from '@/services/api';
 import MainLayout from '@/components/Layout/MainLayout';
 import dayjs from 'dayjs';
 import { useAuthStore } from '@/stores/auth';
@@ -102,6 +102,7 @@ export default function ReportsPage() {
       console.log('ReportsPage: fetching daily reports, weekly reports and users');
       fetchDailyReports();
       fetchWeeklyReports();
+      fetchProjects();
       fetchUsers();
     }
   }, [isAuthenticated]);
@@ -133,6 +134,16 @@ export default function ReportsPage() {
       setProjects(response.data);
     } catch (error) {
       message.error('获取项目列表失败');
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const response = await userAPI.getUsers();
+      // 这里可以设置用户列表，如果需要的话
+      console.log('Users loaded:', response.data.users?.length || 0);
+    } catch (error) {
+      message.error('获取用户列表失败');
     }
   };
 
